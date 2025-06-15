@@ -17,10 +17,7 @@ const goals = [
 
 const Tooltip = ({ text }: { text: React.ReactNode }) => (
   <span className="group relative inline-flex items-center">
-    <HelpCircle
-      size={16}
-      className="ml-1 text-blue-500 cursor-pointer hover:text-blue-700"
-    />
+    <HelpCircle size={16} className="ml-1 text-blue-500 cursor-pointer hover:text-blue-700" />
     <span className="opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition z-20 absolute left-full ml-2 bg-neutral-900 text-white text-xs rounded px-2 py-1 min-w-[200px] shadow-lg whitespace-normal">
       {text}
     </span>
@@ -31,7 +28,11 @@ export function SubjectLineForm({ onResult }: { onResult: (res: any) => void }) 
   const [form, setForm] = useState({
     campaignType: "",
     targetAudience: "",
+    offerOrSale: "",
+    product: "",
     offer: "",
+    brandName: "",
+    industry: "",
     goal: "",
     brandGuidelines: "",
   });
@@ -40,33 +41,31 @@ export function SubjectLineForm({ onResult }: { onResult: (res: any) => void }) 
 
   const { generate } = useSubjectLines();
 
-  const isValid =
-    form.campaignType &&
-    form.targetAudience.trim() &&
-    form.offer.trim() &&
-    form.goal;
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setForm(f => ({ ...f, [e.target.name]: e.target.value }));
   };
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!isValid) {
-      toast({
-        title: "Please fill in all required fields.",
-        description: "",
-      });
-      return;
-    }
     setLoading(true);
     try {
-      const result = await generate({ ...form, brandGuidelines: showBrand ? form.brandGuidelines : "" });
+      const result = await generate({
+        campaignType: form.campaignType,
+        targetAudience: form.targetAudience,
+        offerOrSale: form.offerOrSale,
+        product: form.product,
+        brandName: form.brandName,
+        industry: form.industry,
+        goal: form.goal,
+        brandGuidelines: showBrand ? form.brandGuidelines : "",
+      });
       onResult(result);
       setTimeout(() => {
         const el = document.getElementById("sls-results");
         if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
       }, 200);
+    } catch (err: any) {
+      toast({ title: "Error generating subject lines.", description: err?.message || "" });
     } finally {
       setLoading(false);
     }
@@ -81,14 +80,13 @@ export function SubjectLineForm({ onResult }: { onResult: (res: any) => void }) 
       <div className="mb-3">
         <label className="font-semibold flex items-center">
           Campaign Type
-          <Tooltip text="What type of campaign is this? (Sale, Product Launch, etc.)" />
+          <Tooltip text="Optional: What type of campaign is this? (Sale, Product Launch, etc.)" />
         </label>
         <select
           className="w-full mt-1.5 rounded border-gray-300 focus:ring-2 focus:ring-blue-400 px-3 py-2"
           name="campaignType"
           value={form.campaignType}
           onChange={handleChange}
-          required
         >
           <option value="">Select…</option>
           {campaignTypes.map((opt) => (
@@ -99,8 +97,36 @@ export function SubjectLineForm({ onResult }: { onResult: (res: any) => void }) 
 
       <div>
         <label className="font-semibold flex items-center">
+          Brand Name
+          <Tooltip text="Optional: Enter your brand or company name." />
+        </label>
+        <Input
+          className="mt-1.5"
+          name="brandName"
+          placeholder="e.g. Glow & Co."
+          value={form.brandName}
+          onChange={handleChange}
+        />
+      </div>
+
+      <div>
+        <label className="font-semibold flex items-center">
+          Industry
+          <Tooltip text="Optional: e.g. Skincare, SaaS, Retail, Finance, etc." />
+        </label>
+        <Input
+          className="mt-1.5"
+          name="industry"
+          placeholder="e.g. Skincare, SaaS, Retail, etc."
+          value={form.industry}
+          onChange={handleChange}
+        />
+      </div>
+
+      <div>
+        <label className="font-semibold flex items-center">
           Target Audience
-          <Tooltip text="Who will receive this email? (e.g. 'Skincare enthusiasts', 'B2B marketers')" />
+          <Tooltip text="Optional: Who will receive this email? (e.g. 'Tech founders', 'Dog owners')" />
         </label>
         <Input
           className="mt-1.5"
@@ -108,36 +134,47 @@ export function SubjectLineForm({ onResult }: { onResult: (res: any) => void }) 
           placeholder='e.g. "Tech founders", "Dog owners"'
           value={form.targetAudience}
           onChange={handleChange}
-          required
         />
       </div>
 
       <div>
         <label className="font-semibold flex items-center">
-          Offer or Product
-          <Tooltip text="What is the main offer or product? (e.g. '20% off vitamins', 'Early access to CRM')" />
+          Offer or Sale
+          <Tooltip text="Optional: What is the special offer or sale? (e.g. '20% off', 'Buy 1 Get 1 Free')" />
         </label>
         <Input
           className="mt-1.5"
-          name="offer"
-          placeholder="e.g. 'Free shipping', 'New summer course'"
-          value={form.offer}
+          name="offerOrSale"
+          placeholder="e.g. '20% off', 'Bundle savings', etc."
+          value={form.offerOrSale}
           onChange={handleChange}
-          required
+        />
+      </div>
+
+      <div>
+        <label className="font-semibold flex items-center">
+          Product Being Promoted
+          <Tooltip text="Optional: What is the main product? (e.g. 'Vitamin C Serum', 'CRM platform', etc.)" />
+        </label>
+        <Input
+          className="mt-1.5"
+          name="product"
+          placeholder="e.g. 'Vitamin C Serum', 'CRM Platform'"
+          value={form.product}
+          onChange={handleChange}
         />
       </div>
 
       <div>
         <label className="font-semibold flex items-center">
           Goal
-          <Tooltip text="What's your main goal for this email? (e.g. Opens, Clicks)" />
+          <Tooltip text="Optional: What's your main goal for this email? (e.g. Opens, Clicks)" />
         </label>
         <select
           className="w-full mt-1.5 rounded border-gray-300 focus:ring-2 focus:ring-blue-400 px-3 py-2"
           name="goal"
           value={form.goal}
           onChange={handleChange}
-          required
         >
           <option value="">Select…</option>
           {goals.map((opt) => (
@@ -154,14 +191,14 @@ export function SubjectLineForm({ onResult }: { onResult: (res: any) => void }) 
         />
         <label htmlFor="showBrand" className="text-sm font-medium select-none flex items-center">
           Add Brand Tone Guidelines
-          <Tooltip text='Optional: e.g. “We’re cheeky and bold, but never cringey.”' />
+          <Tooltip text="Optional: e.g. “We’re cheeky and bold, but never cringey.”" />
         </label>
       </div>
       {showBrand && (
         <textarea
           className="rounded border-gray-300 mt-2 px-3 py-2 w-full focus:ring-2 focus:ring-blue-400 min-h-[70px]"
           name="brandGuidelines"
-          placeholder='Describe your brand voice, e.g. "Conversational, luxury, witty…"'
+          placeholder='Optional: Describe your brand voice, e.g. "Conversational, luxury, witty…"'
           value={form.brandGuidelines}
           onChange={handleChange}
           maxLength={200}
@@ -169,9 +206,9 @@ export function SubjectLineForm({ onResult }: { onResult: (res: any) => void }) 
       )}
 
       <Button
-        className={cn("mt-6 font-semibold text-base", !isValid && "opacity-60 pointer-events-none")}
+        className={cn("mt-6 font-semibold text-base")}
         type="submit"
-        disabled={!isValid || loading}
+        disabled={loading}
       >
         <Sparkles className="inline mr-1 -mt-1" />
         {loading ? "Generating…" : "Generate"}
@@ -179,3 +216,4 @@ export function SubjectLineForm({ onResult }: { onResult: (res: any) => void }) 
     </form>
   );
 }
+

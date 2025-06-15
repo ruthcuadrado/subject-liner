@@ -1,65 +1,120 @@
 
 import { useState } from "react";
 
-// For V1: mock AI with deterministic example output.
-// Swap with API in V2.
-const tones = [
-  { tone: "Curiosity", prompt: "Make it intriguing/clickbait" },
-  { tone: "Fun", prompt: "Make it playful/friendly" },
-  { tone: "Urgency", prompt: "Make it urgent/FOMO" },
-  { tone: "Promo", prompt: "Make it promotional/discount-driven" },
-  { tone: "Clear", prompt: "Make it direct/straightforward" },
-];
-
 export function useSubjectLines() {
   const [loading, setLoading] = useState(false);
 
   async function generate(input: {
-    campaignType: string;
-    targetAudience: string;
-    offer: string;
-    goal: string;
+    campaignType?: string;
+    targetAudience?: string;
+    offerOrSale?: string;
+    product?: string;
+    brandName?: string;
+    industry?: string;
+    goal?: string;
     brandGuidelines?: string;
   }) {
-    // Replace this logic with real AI API call in V2!
-    const { campaignType, targetAudience, offer, brandGuidelines } = input;
-    // Fake variation for demo
-    function combine(prompt: string) {
-      return `${prompt} for ${campaignType.toLowerCase()} to ${targetAudience}: ${offer}`;
+    setLoading(true);
+
+    // Build the detailed prompt for ChatGPT
+    const prompt = `
+You are a high-performing email copywriter. Based on the campaign details provided below, write 5 subject line options in different tones (Curiosity, Fun, Urgency, Promo, Clear) and include a matching preview text for each.
+Subject lines: punchy (max 10 words), emotionally compelling, and designed to increase open rates. Preview text should complement the subject and add intrigue (max 15 words). Avoid repeating the same structure or call-to-action. Show results in a clear list with tone labels.
+
+Campaign details:
+${input.brandName ? `Brand: ${input.brandName}\n` : ""}
+${input.industry ? `Industry: ${input.industry}\n` : ""}
+${input.campaignType ? `Campaign Type: ${input.campaignType}\n` : ""}
+${input.targetAudience ? `Target Audience: ${input.targetAudience}\n` : ""}
+${input.offerOrSale ? `Offer or Sale: ${input.offerOrSale}\n` : ""}
+${input.product ? `Product: ${input.product}\n` : ""}
+${input.goal ? `Goal: ${input.goal}\n` : ""}
+${input.brandGuidelines ? `Brand Guidelines: ${input.brandGuidelines}\n` : ""}
+
+Please use the information to make each subject line and preview text highly relevant.
+Respond in JSON of this format:
+[
+  {
+    "tone": "Curiosity",
+    "subject": "...",
+    "preview": "..."
+  },
+  {
+    "tone": "Fun",
+    "subject": "...",
+    "preview": "..."
+  },
+  {
+    "tone": "Urgency",
+    "subject": "...",
+    "preview": "..."
+  },
+  {
+    "tone": "Promo",
+    "subject": "...",
+    "preview": "..."
+  },
+  {
+    "tone": "Clear",
+    "subject": "...",
+    "preview": "..."
+  }
+]
+`;
+
+    // Use your OpenAI API key from env
+    const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+    if (!apiKey) {
+      setLoading(false);
+      throw new Error("OpenAI API Key is not set. Please set VITE_OPENAI_API_KEY in your environment.");
     }
-    // Pretend to "think"
-    await new Promise(res => setTimeout(res, 800));
-    // Real use would call the API with the full rich system prompt and received tones
-    const sample = [
-      {
-        tone: "Curiosity",
-        subject: "Guess what's coming for you… 👀",
-        preview: "Unlock a surprise that our competition won't tell you about.",
+
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
       },
-      {
-        tone: "Fun",
-        subject: "Your inbox just got happier 🎉",
-        preview: "A treat for you inside—let’s smile together!",
-      },
-      {
-        tone: "Urgency",
-        subject: "Last chance: Don’t let this slip away!",
-        preview: "This offer disappears soon—are you in or out?",
-      },
-      {
-        tone: "Promo",
-        subject: "Save more, shine brighter: special deal inside",
-        preview: "Get your exclusive savings—don’t wait to open.",
-      },
-      {
-        tone: "Clear",
-        subject: "Your exclusive offer is here",
-        preview: "Everything you need, right inside this email.",
-      },
-    ];
-    // If user submits, return these for now. In V2, use AI to make them unique.
-    return { subjectLines: sample };
+      body: JSON.stringify({
+        model: "gpt-4o",
+        messages: [
+          {
+            role: "system",
+            content: "You are a helpful assistant that generates great email subject lines and matching preview text for marketing campaigns."
+          },
+          {
+            role: "user",
+            content: prompt,
+          },
+        ],
+        max_tokens: 750,
+        temperature: 0.8
+      }),
+    });
+
+    setLoading(false);
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch subject lines from OpenAI.");
+    }
+    const data = await response.json();
+
+    // Try to parse the assistant's response (should be JSON as specified)
+    let json;
+    try {
+      const match = data.choices?.[0]?.message?.content?.match(/\[.*\]/s);
+      if (match) {
+        json = JSON.parse(match[0]);
+      } else {
+        throw new Error("Could not find JSON subject lines in the response!");
+      }
+    } catch (e: any) {
+      throw new Error("Failed to parse subject lines from AI output.");
+    }
+
+    return { subjectLines: json };
   }
 
   return { loading, generate };
 }
+
