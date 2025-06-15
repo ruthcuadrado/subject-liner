@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { HelpCircle, Sparkles } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
@@ -41,7 +40,10 @@ export function SubjectLineForm({ onResult }: { onResult: (res: any) => void }) 
 
   const { generate } = useSubjectLines();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  // Update: Now also accepts textarea's event type
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  ) => {
     setForm(f => ({ ...f, [e.target.name]: e.target.value }));
   };
 
@@ -216,4 +218,3 @@ export function SubjectLineForm({ onResult }: { onResult: (res: any) => void }) 
     </form>
   );
 }
-
