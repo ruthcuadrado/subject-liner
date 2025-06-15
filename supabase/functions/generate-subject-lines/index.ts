@@ -14,7 +14,7 @@ serve(async (req) => {
   }
 
   try {
-    const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+    const openAIApiKey = Deno.env.get('VITE_OPENAI_API_KEY');
     
     if (!openAIApiKey) {
       console.error('OpenAI API key not found in environment variables');
@@ -104,7 +104,7 @@ Respond ONLY with minified JSON in this format:
         Authorization: `Bearer ${openAIApiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-4o",
+        model: "gpt-4.1-2025-04-14",
         messages: [
           {
             role: "system",
