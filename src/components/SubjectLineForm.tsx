@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { useSubjectLines } from "@/lib/useSubjectLines";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
+import { OpenAIKeyInput } from "./OpenAIKeyInput";
 
 const campaignTypes = [
   "Sale", "Product Launch", "Newsletter", "Event", "Other"
@@ -37,6 +38,9 @@ export function SubjectLineForm({ onResult }: { onResult: (res: any) => void }) 
   });
   const [showBrand, setShowBrand] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [hasKey, setHasKey] = useState(() =>
+    typeof window !== "undefined" && !!localStorage.getItem("openai_api_key")
+  );
 
   const { generate } = useSubjectLines();
 
@@ -49,6 +53,13 @@ export function SubjectLineForm({ onResult }: { onResult: (res: any) => void }) 
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!hasKey && !(import.meta.env.VITE_OPENAI_API_KEY)) {
+      toast({
+        title: "API Key required",
+        description: "Please enter your OpenAI API Key above before generating."
+      });
+      return;
+    }
     setLoading(true);
     try {
       console.log("Form input data:", form);
@@ -82,6 +93,14 @@ export function SubjectLineForm({ onResult }: { onResult: (res: any) => void }) 
       onSubmit={handleSubmit}
       aria-label="Subject Line Generator Input"
     >
+      <OpenAIKeyInput onKeySet={() => setHasKey(true)} />
+      {/* Show a notice if user hasn't entered a key and there's no env key */}
+      {!hasKey && !import.meta.env.VITE_OPENAI_API_KEY && (
+        <div className="mb-2 p-3 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded text-sm">
+          <span className="font-bold">Required:</span> Please provide your OpenAI API key above to generate subject lines.
+        </div>
+      )}
+
       <div className="mb-3">
         <label className="font-semibold flex items-center">
           Campaign Type

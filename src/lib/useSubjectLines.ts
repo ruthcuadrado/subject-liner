@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 
 export function useSubjectLines() {
@@ -62,12 +61,19 @@ Respond in JSON of this format:
 ]
 `;
 
-    // Use your OpenAI API key from env
-    const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+    // Use OpenAI API key from localStorage first, then env
+    let apiKey = "";
+    if (typeof window !== "undefined") {
+      apiKey = localStorage.getItem("openai_api_key") || "";
+    }
+    if (!apiKey) {
+      apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+    }
+
     console.log("OpenAI API Key present?", !!apiKey);
     if (!apiKey) {
       setLoading(false);
-      throw new Error("OpenAI API Key is not set. Please set VITE_OPENAI_API_KEY in your environment.");
+      throw new Error("OpenAI API Key is not set. Please set it above, or set VITE_OPENAI_API_KEY in your environment.");
     }
 
     try {
