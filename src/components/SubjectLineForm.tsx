@@ -51,6 +51,7 @@ export function SubjectLineForm({ onResult }: { onResult: (res: any) => void }) 
     e.preventDefault();
     setLoading(true);
     try {
+      console.log("Form input data:", form);
       const result = await generate({
         campaignType: form.campaignType,
         targetAudience: form.targetAudience,
@@ -61,12 +62,14 @@ export function SubjectLineForm({ onResult }: { onResult: (res: any) => void }) 
         goal: form.goal,
         brandGuidelines: showBrand ? form.brandGuidelines : "",
       });
+      console.log("Generator result:", result);
       onResult(result);
       setTimeout(() => {
         const el = document.getElementById("sls-results");
         if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
       }, 200);
     } catch (err: any) {
+      console.error("Error generating subject lines:", err);
       toast({ title: "Error generating subject lines.", description: err?.message || "" });
     } finally {
       setLoading(false);

@@ -64,57 +64,68 @@ Respond in JSON of this format:
 
     // Use your OpenAI API key from env
     const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+    console.log("OpenAI API Key present?", !!apiKey);
     if (!apiKey) {
       setLoading(false);
       throw new Error("OpenAI API Key is not set. Please set VITE_OPENAI_API_KEY in your environment.");
     }
 
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: "gpt-4o",
-        messages: [
-          {
-            role: "system",
-            content: "You are a helpful assistant that generates great email subject lines and matching preview text for marketing campaigns."
-          },
-          {
-            role: "user",
-            content: prompt,
-          },
-        ],
-        max_tokens: 750,
-        temperature: 0.8
-      }),
-    });
-
-    setLoading(false);
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch subject lines from OpenAI.");
-    }
-    const data = await response.json();
-
-    // Try to parse the assistant's response (should be JSON as specified)
-    let json;
     try {
-      const match = data.choices?.[0]?.message?.content?.match(/\[.*\]/s);
-      if (match) {
-        json = JSON.parse(match[0]);
-      } else {
-        throw new Error("Could not find JSON subject lines in the response!");
-      }
-    } catch (e: any) {
-      throw new Error("Failed to parse subject lines from AI output.");
-    }
+      console.log("About to make OpenAI API request...");
+      const response = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: "gpt-4o",
+          messages: [
+            {
+              role: "system",
+              content: "You are a helpful assistant that generates great email subject lines and matching preview text for marketing campaigns."
+            },
+            {
+              role: "user",
+              content: prompt,
+            },
+          ],
+          max_tokens: 750,
+          temperature: 0.8
+        }),
+      });
 
-    return { subjectLines: json };
+      setLoading(false);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("OpenAI API failed:", response.status, errorText);
+        throw new Error("Failed to fetch subject lines from OpenAI.");
+      }
+      const data = await response.json();
+      console.log("OpenAI API response data:", data);
+
+      // Try to parse the assistant's response (should be JSON as specified)
+      let json;
+      try {
+        const match = data.choices?.[0]?.message?.content?.match(/\[.*\]/s);
+        if (match) {
+          json = JSON.parse(match[0]);
+        } else {
+          throw new Error("Could not find JSON subject lines in the response!");
+        }
+      } catch (e: any) {
+        console.error("Parsing AI output failed:", e);
+        throw new Error("Failed to parse subject lines from AI output.");
+      }
+
+      return { subjectLines: json };
+    } catch (e) {
+      setLoading(false);
+      console.error("Error in generate():", e);
+      throw e;
+    }
   }
 
   return { loading, generate };
 }
-
