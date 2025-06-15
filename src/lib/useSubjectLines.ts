@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 
 export function useSubjectLines() {
@@ -17,15 +16,22 @@ export function useSubjectLines() {
   }) {
     setLoading(true);
 
-    // Build the detailed prompt for ChatGPT
+    // Compose a SMARTER prompt
     let prompt = `
-You are a high-performing email copywriter. Based on the campaign details below, write 5 subject line options in different tones (Curiosity, Fun, Urgency, Promo, Clear) and include a matching preview text for each.
-Subject lines: punchy (max 10 words), emotionally compelling, and designed to increase open rates. Preview text should complement the subject and add intrigue (max 15 words). Avoid repeating the same structure or call-to-action. Show results in a clear list with tone labels.
+You are a high-impact, creative, and brand-sensitive email copywriter. Analyze the following brand and campaign info and use it (including inferred brand keywords, style, and product fit) to maximize relevance and originality. If brand info is missing, use best guesses from what is provided. Never repeat yourself or offer generic filler.
 
-${input.abTest
-      ? 'A/B TEST MODE is ON: For each tone, generate two slightly different but relevant versions of both the subject line and preview text for A/B testing (for example, "Last Chance" vs "Ends Tomorrow").'
-      : ''
-    }
+Write 5 subject line options in these tones: Curiosity, Fun, Urgency, Promo, Clear. For each, include a matching preview text that fits the brand and maximizes open rate.
+- Subject lines: punchy (max 10 words), emotionally compelling, and truly fit the brand/campaign. Explain nothing in output—just JSON.
+- Preview text: complements the subject, max 15 words.
+- For each, draw from brand, campaign goal, and industry for the most targeted ideas.
+
+${
+  input.abTest
+    ? "A/B TEST MODE is ON: For each tone, generate *two similar but not identical* subject lines and previews. Differences should follow best A/B testing practices (e.g., 'Last Chance' vs 'Ends Tomorrow'; curiosity vs clarity)."
+    : ""
+}
+
+>> INCLUDE 1 'Irreverent' tone subject line: Make this a truly wild, creative, internet-breaking (non-offensive) subject line that most brands would never use, but could go viral or get huge attention. This is meant to jolt the reader, without being mean, negative, or breaking rules.
 
 Campaign details:
 ${input.brandName ? `Brand: ${input.brandName}\n` : ""}
@@ -37,10 +43,8 @@ ${input.product ? `Product: ${input.product}\n` : ""}
 ${input.goal ? `Goal: ${input.goal}\n` : ""}
 ${input.brandGuidelines ? `Brand Guidelines: ${input.brandGuidelines}\n` : ""}
 
-Please use the information to make each subject line and preview text highly relevant.
-
-After presenting the complete list, estimate (as a helpful strategist) which subject line is most likely to achieve the stated goal ("${input.goal || ''}") and explain why, in one friendly sentence.
-Respond in JSON of this format:
+After the list, analyze as a friendly strategist: Which subject line is *most likely* to achieve the stated goal "${input.goal || ''}"? Give the field "subject" (matching your winning subject line exactly!) and a sentence explaining *why* in "reason".
+Respond ONLY with minified JSON in this format:
 {
   "subjectLines": [
     ${
@@ -52,13 +56,23 @@ Respond in JSON of this format:
       "previewA": "...",
       "previewB": "..."
     },
-    ... (Fun, Urgency, Promo, Clear)`
+    ... (Fun, Urgency, Promo, Clear),
+    {
+      "tone": "Irreverent",
+      "subjectA": "...",
+      "previewA": "..."
+    }`
         : `{
       "tone": "Curiosity",
       "subject": "...",
       "preview": "..."
     },
-    ... (Fun, Urgency, Promo, Clear)`
+    ... (Fun, Urgency, Promo, Clear),
+    {
+      "tone": "Irreverent",
+      "subject": "...",
+      "preview": "..."
+    }`
     }
   ],
   "chanceOfSuccess": {
