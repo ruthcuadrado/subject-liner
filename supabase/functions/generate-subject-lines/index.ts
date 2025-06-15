@@ -1,152 +1,165 @@
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+};
 
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { 
-      campaignType, 
-      targetAudience, 
-      offerOrSale, 
-      product, 
-      brandName, 
-      industry, 
-      goal, 
-      brandGuidelines,
-      abTest = false 
-    } = await req.json()
-
-    const apiKey = Deno.env.get('VITE_OPENAI_API_KEY')
-    if (!apiKey) {
-      throw new Error('OpenAI API key not found')
+    const openAIApiKey = Deno.env.get('VITE_OPENAI_API_KEY');
+    
+    if (!openAIApiKey) {
+      console.error('OpenAI API key not found in environment variables');
+      return new Response(
+        JSON.stringify({ error: 'OpenAI API key not configured' }), 
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
     }
 
-    const prompt = abTest 
-      ? `Generate 4 pairs of A/B test email subject lines for a ${campaignType} campaign.
-Target audience: ${targetAudience}
-Offer/Sale: ${offerOrSale}
-Product: ${product}
-Brand: ${brandName}
-Industry: ${industry}
-Goal: ${goal}
-Brand guidelines: ${brandGuidelines}
+    const input = await req.json();
+    
+    // Compose the prompt (same logic as before)
+    let prompt = `
+You are a high-impact, creative, and brand-sensitive email copywriter. Analyze the following brand and campaign info, using it (including inferred brand keywords, style, and product fit) to maximize relevance and originality—but never generic. Suggest brand-unique or industry-aware subject lines (e.g., if "Glow & Co.", use beauty/skincare language). Prioritize the most creative and brand-matching option for each tone.
 
-For each pair, create two different subject lines (A and B) that test different approaches. Include preview text for each.
-Use these tones: Curiosity, Fun, Urgency, Promo.
+Write 5 subject line options in these tones: Curiosity, Fun, Urgency, Promo, Clear. For each, include a matching preview text that fits the brand and maximizes open rate.
+- Subject lines: punchy (max 10 words), emotionally compelling, and *actually fit the brand/campaign*. Explain nothing in output—just JSON.
+- Preview text: complements the subject, max 15 words.
+- Draw from brand, campaign goal, and industry for targeted ideas. Avoid generic, repetitive, or copy-paste filler.
 
-Return JSON in this exact format:
+${
+  input.abTest
+    ? "A/B TEST MODE is ON: For each tone, generate *two similar but not identical* subject lines and previews. Differences should follow best A/B testing practices (e.g., 'Last Chance' vs 'Ends Tomorrow'; curiosity vs clarity)."
+    : ""
+}
+
+>> INCLUDE 1 'Irreverent / Wild' tone subject line: Make this the craziest, most wild, internet-breaking, attention-grabbing subject line you could imagine (but not offensive or negative). Must be almost too wild to use—a subject line so strange, funny, unexpected, or ridiculous that it would instantly grab attention and go viral. Preview text should match the energy.
+
+Campaign details:
+${input.brandName ? `Brand: ${input.brandName}\n` : ""}
+${input.industry ? `Industry: ${input.industry}\n` : ""}
+${input.campaignType ? `Campaign Type: ${input.campaignType}\n` : ""}
+${input.targetAudience ? `Target Audience: ${input.targetAudience}\n` : ""}
+${input.offerOrSale ? `Offer or Sale: ${input.offerOrSale}\n` : ""}
+${input.product ? `Product: ${input.product}\n` : ""}
+${input.goal ? `Goal: ${input.goal}\n` : ""}
+${input.brandGuidelines ? `Brand Guidelines: ${input.brandGuidelines}\n` : ""}
+
+After the list, analyze as a friendly strategist: Which subject line is *most likely* to achieve the stated goal "${input.goal || ''}"? Give the field "subject" (matching your winning subject line exactly!) and a sentence explaining *why* in "reason".
+Respond ONLY with minified JSON in this format:
 {
   "subjectLines": [
-    {
+    ${
+      input.abTest
+        ? `{
       "tone": "Curiosity",
-      "subjectA": "subject line A",
-      "previewA": "preview text A",
-      "subjectB": "subject line B", 
-      "previewB": "preview text B"
+      "subjectA": "...",
+      "subjectB": "...",
+      "previewA": "...",
+      "previewB": "..."
+    },
+    ... (Fun, Urgency, Promo, Clear),
+    {
+      "tone": "Irreverent / Wild",
+      "subjectA": "...",
+      "previewA": "..."
+    }`
+        : `{
+      "tone": "Curiosity",
+      "subject": "...",
+      "preview": "..."
+    },
+    ... (Fun, Urgency, Promo, Clear),
+    {
+      "tone": "Irreverent / Wild",
+      "subject": "...",
+      "preview": "..."
+    }`
     }
   ],
   "chanceOfSuccess": {
-    "subject": "the best subject line",
-    "reason": "why this one will work best for the ${goal} goal"
+    "subject": "The subject line text predicted to do best",
+    "reason": "A short friendly explanation"
   }
-}`
-      : `Generate 5 email subject lines for a ${campaignType} campaign.
-Target audience: ${targetAudience}
-Offer/Sale: ${offerOrSale}
-Product: ${product}
-Brand: ${brandName}
-Industry: ${industry}
-Goal: ${goal}
-Brand guidelines: ${brandGuidelines}
+}
+`;
 
-Use these 5 tones: Curiosity, Fun, Urgency, Promo, Clear.
-Include preview text for each.
-
-Return JSON in this exact format:
-{
-  "subjectLines": [
-    {
-      "tone": "Curiosity",
-      "subject": "subject line here",
-      "preview": "preview text here"
-    }
-  ],
-  "chanceOfSuccess": {
-    "subject": "the best subject line",
-    "reason": "why this one will work best for the ${goal} goal"
-  }
-}`
-
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
+    console.log('Making OpenAI API request...');
+    
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
       headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${openAIApiKey}`,
       },
       body: JSON.stringify({
-        model: 'gpt-4o',
+        model: "gpt-4.1-2025-04-14",
         messages: [
           {
-            role: 'system',
-            content: 'You are an expert email marketing copywriter. Always return valid JSON in the exact format requested.'
+            role: "system",
+            content: "You are a helpful assistant that generates great email subject lines and matching preview text for marketing campaigns."
           },
           {
-            role: 'user',
-            content: prompt
-          }
+            role: "user",
+            content: prompt,
+          },
         ],
-        temperature: 0.8,
-        max_tokens: 1500,
+        max_tokens: 1100,
+        temperature: 0.8
       }),
-    })
+    });
 
     if (!response.ok) {
-      throw new Error(`OpenAI API error: ${response.status}`)
+      const errorText = await response.text();
+      console.error('OpenAI API error:', errorText);
+      throw new Error("Failed to fetch subject lines from OpenAI.");
     }
 
-    const data = await response.json()
-    const content = data.choices[0].message.content
+    const data = await response.json();
+    console.log('OpenAI response received successfully');
 
-    let result
+    // Parse the assistant's response
+    let json;
     try {
-      result = JSON.parse(content)
-    } catch (e) {
-      console.error('Failed to parse OpenAI response:', content)
-      throw new Error('Invalid response format from OpenAI')
-    }
-
-    return new Response(
-      JSON.stringify(result),
-      { 
-        headers: { 
-          ...corsHeaders, 
-          'Content-Type': 'application/json' 
-        } 
-      }
-    )
-
-  } catch (error) {
-    console.error('Edge function error:', error)
-    return new Response(
-      JSON.stringify({ 
-        error: error.message || 'An error occurred' 
-      }),
-      { 
-        status: 500,
-        headers: { 
-          ...corsHeaders, 
-          'Content-Type': 'application/json' 
+      const match = data.choices?.[0]?.message?.content?.match(/```json([\s\S]*?)```/);
+      if (match && match[1]) {
+        json = JSON.parse(match[1]);
+      } else {
+        const arrMatch = data.choices?.[0]?.message?.content?.match(/\[.*\]/s);
+        if (arrMatch) {
+          json = { subjectLines: JSON.parse(arrMatch[0]), chanceOfSuccess: null };
+        } else {
+          throw new Error("Could not find JSON subject lines in the response!");
         }
       }
-    )
+    } catch (e: any) {
+      console.error('Failed to parse OpenAI response:', e);
+      throw new Error("Failed to parse subject lines from AI output.");
+    }
+
+    return new Response(JSON.stringify(json), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+
+  } catch (error: any) {
+    console.error('Error in generate-subject-lines function:', error);
+    return new Response(
+      JSON.stringify({ error: error.message }), 
+      { 
+        status: 500, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      }
+    );
   }
-})
+});
