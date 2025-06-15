@@ -1,1 +1,5 @@
+
 project_id = "djqjpqbsqpeuccdnwhih"
+
+[functions.generate-subject-lines]
+verify_jwt = false

@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { useSubjectLines } from "@/lib/useSubjectLines";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
-import { OpenAIKeyInput } from "./OpenAIKeyInput";
 
 const campaignTypes = [
   "Sale", "Product Launch", "Newsletter", "Event", "Other"
@@ -64,7 +63,6 @@ export function SubjectLineForm({
     }
   }, [form, showBrand]); 
 
-  // Update: Now also accepts textarea's event type
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
@@ -73,13 +71,6 @@ export function SubjectLineForm({
 
   async function handleSubmit(e?: React.FormEvent) {
     if (e) e.preventDefault();
-    if (!(import.meta.env.VITE_OPENAI_API_KEY)) {
-      toast({
-        title: "API Key required",
-        description: "Please add your OpenAI API Key as VITE_OPENAI_API_KEY via Supabase secrets."
-      });
-      return;
-    }
     setLoading(true);
     setAbMode(false);
     try {
@@ -101,13 +92,8 @@ export function SubjectLineForm({
     }
   }
 
-  // A/B Test generator
   async function handleAbTest(e?: React.FormEvent) {
     if (e) e.preventDefault();
-    if (!(import.meta.env.VITE_OPENAI_API_KEY)) {
-      toast({ title: "API Key required", description: "Please add your OpenAI API Key as VITE_OPENAI_API_KEY via Supabase secrets." });
-      return;
-    }
     setLoading(true);
     setAbMode(true);
     try {
@@ -136,16 +122,7 @@ export function SubjectLineForm({
       onSubmit={handleSubmit}
       aria-label="Subject Line Generator Input"
     >
-      {/* Removed API Key input */}
-      {/* <div className="col-span-2">
-        <OpenAIKeyInput onKeySet={() => setHasKey(true)} />
-        {!hasKey && !import.meta.env.VITE_OPENAI_API_KEY && (
-          <div className="mb-2 p-3 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded text-sm">
-            <span className="font-bold">Required:</span> Please provide your OpenAI API key above to generate subject lines.
-          </div>
-        )}
-      </div> */}
-
+      {/* Form fields remain the same */}
       <div>
         <label className="font-semibold flex items-center text-[#3e40a6]">
           Campaign Type
