@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Copy } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
@@ -67,14 +68,31 @@ export function SubjectLineResults({
 
   return (
     <div id="sls-results" className="animate-fade-in w-full max-w-2xl mx-auto mt-4">
-      <h2 className="text-xl font-semibold mb-3 mt-2 text-[#24248d]">Subject Line Ideas</h2>
+      <h2 className="text-xl font-semibold mb-3 mt-2 text-[#1e3a8a]">Subject Line Ideas</h2>
+      
+      {/* Winner prediction banner - only show if we have a prediction */}
+      {predicted && predictedIdx !== null && predictedIdx >= 0 && (
+        <div className="mb-4 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-500 rounded-lg">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+            <span className="text-sm font-semibold text-blue-900">AI Prediction:</span>
+            <span className="text-sm text-blue-800">
+              "{predicted.subject}" is most likely to achieve your "{goal}" goal
+            </span>
+          </div>
+          {predicted.reason && (
+            <p className="text-xs text-blue-700 mt-1 ml-4">{predicted.reason}</p>
+          )}
+        </div>
+      )}
+
       <ul className="space-y-5">
         {lines.map((item: any, idx: number) => (
           <li
             key={idx + "-" + (item.tone || "")}
             className={cn(
-              "border border-[#e3e7fa] p-4 rounded-xl bg-[#f6fafe] shadow-md flex flex-col gap-1 group relative",
-              predictedIdx === idx && "border-2 border-[#5b8ff9] bg-blue-50"
+              "border border-[#e3e7fa] p-4 rounded-xl bg-gradient-to-br from-[#f6fafe] to-[#f0f6ff] shadow-md flex flex-col gap-1 group relative",
+              predictedIdx === idx && "border-2 border-blue-400 bg-gradient-to-br from-blue-50 to-indigo-50 shadow-lg"
             )}
           >
             <div className="flex items-center gap-2 mb-1">
@@ -84,62 +102,62 @@ export function SubjectLineResults({
               )}>
                 {item.tone}
               </span>
+              {/* Winner badge inline with tone */}
+              {predictedIdx === idx && predicted && (
+                <span className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-full px-2 py-0.5 text-xs font-semibold">
+                  ⭐ Predicted Winner
+                </span>
+              )}
             </div>
             {/* A/B test mode */}
             {abTest ? (
               <div className="flex flex-col gap-2">
                 <div className="flex items-center gap-2">
-                  <span className="text-[#273095] font-bold text-lg flex-1">{item.subjectA}</span>
+                  <span className="text-[#1e3a8a] font-bold text-lg flex-1">{item.subjectA}</span>
                   <button
                     onClick={() => copyToClipboard(item.subjectA)}
                     className="hover:bg-blue-100 rounded p-1 transition"
                     aria-label="Copy subject line"
                     type="button"
                   >
-                    <Copy size={18} className="text-[#5c6ce5]" />
+                    <Copy size={18} className="text-[#3b82f6]" />
                   </button>
                 </div>
-                <span className="text-sm text-[#7582b8] pl-0.5">{item.previewA}</span>
+                <span className="text-sm text-[#64748b] pl-0.5">{item.previewA}</span>
                 <div className="flex items-center gap-2">
-                  <span className="text-[#273095] font-bold text-lg flex-1">{item.subjectB}</span>
+                  <span className="text-[#1e3a8a] font-bold text-lg flex-1">{item.subjectB}</span>
                   <button
                     onClick={() => copyToClipboard(item.subjectB)}
                     className="hover:bg-blue-100 rounded p-1 transition"
                     aria-label="Copy subject line"
                     type="button"
                   >
-                    <Copy size={18} className="text-[#5c6ce5]" />
+                    <Copy size={18} className="text-[#3b82f6]" />
                   </button>
                 </div>
-                <span className="text-sm text-[#7582b8] pl-0.5">{item.previewB}</span>
+                <span className="text-sm text-[#64748b] pl-0.5">{item.previewB}</span>
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <span className="font-bold text-lg flex-1 text-[#273095]">{item.subject}</span>
+                <span className="font-bold text-lg flex-1 text-[#1e3a8a]">{item.subject}</span>
                 <button
                   onClick={() => copyToClipboard(item.subject)}
                   className="hover:bg-blue-100 rounded p-1 transition"
                   aria-label="Copy subject line"
                   type="button"
                 >
-                  <Copy size={18} className="text-[#5c6ce5]" />
+                  <Copy size={18} className="text-[#3b82f6]" />
                 </button>
               </div>
             )}
             {!abTest && (
-              <span className="text-sm text-[#7582b8] pl-0.5">{item.preview}</span>
-            )}
-            {/* Winner caption inline */}
-            {predictedIdx === idx && predicted && (
-              <span className="ml-2 bg-blue-200 text-blue-900 rounded-full px-2 py-0.5 text-xs font-semibold mt-2 inline-flex items-center">
-                Predicted winner towards "{goal}" goal
-              </span>
+              <span className="text-sm text-[#64748b] pl-0.5">{item.preview}</span>
             )}
           </li>
         ))}
         {irreverent && (
           <li
-            className="border-violet-500 border-2 p-4 rounded-xl bg-violet-100 shadow-md flex flex-col gap-1 mt-3 animate-pulse"
+            className="border-violet-500 border-2 p-4 rounded-xl bg-gradient-to-br from-violet-100 to-purple-50 shadow-md flex flex-col gap-1 mt-3 animate-pulse"
             key="irreverent"
           >
             <div className="flex items-center gap-2 mb-1">
@@ -149,7 +167,7 @@ export function SubjectLineResults({
               )}>
                 Irreverent / Wild
               </span>
-              <span className="ml-2 bg-pink-400 text-pink-900 rounded-full px-2 py-0.5 text-xs font-bold uppercase shadow-sm">
+              <span className="ml-2 bg-gradient-to-r from-pink-400 to-purple-500 text-white rounded-full px-2 py-0.5 text-xs font-bold uppercase shadow-sm">
                 Almost too wild
               </span>
             </div>
@@ -160,7 +178,7 @@ export function SubjectLineResults({
       </ul>
       <div className="flex justify-center gap-6 mt-8">
         <button
-          className="px-6 py-2 bg-[#6d67df] text-white rounded-full font-medium shadow hover:bg-[#473db7] transition-all"
+          className="px-6 py-2 bg-gradient-to-r from-[#6366f1] to-[#8b5cf6] text-white rounded-full font-medium shadow hover:from-[#4f46e5] hover:to-[#7c3aed] transition-all"
           onClick={onGenerateAgain}
           disabled={loading}
           type="button"
@@ -168,7 +186,7 @@ export function SubjectLineResults({
           {loading ? "Generating…" : "Regenerate"}
         </button>
         <button
-          className="px-6 py-2 bg-[#5077ef] text-white rounded-full font-medium shadow hover:bg-[#284cac] transition-all"
+          className="px-6 py-2 bg-gradient-to-r from-[#3b82f6] to-[#6366f1] text-white rounded-full font-medium shadow hover:from-[#2563eb] hover:to-[#4f46e5] transition-all"
           onClick={onABTest}
           disabled={loading}
           type="button"
