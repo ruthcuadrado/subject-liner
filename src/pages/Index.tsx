@@ -9,7 +9,7 @@ const APP_TITLES = [
   "Inbox Impact: Subject Lab",
   "OpenRate Spark",
 ];
-const TITLE = APP_TITLES[0]; // Change here to pick different title.
+const TITLE = "Subject Line Brainstormer"; // As requested, fixed title.
 
 const Index = () => {
   const [result, setResult] = useState(null);
@@ -32,13 +32,14 @@ const Index = () => {
       }}
     >
       <header className="pt-12 pb-4">
-        <h1 className="text-[2.3rem] md:text-[2.7rem] font-extrabold text-center text-[#2238b3] tracking-tight drop-shadow-sm leading-tight"
-        >
+        <h1 className="text-[2.3rem] md:text-[2.7rem] font-extrabold text-center text-[#2238b3] tracking-tight drop-shadow-sm leading-tight">
           {TITLE}
         </h1>
-        <p className="text-center text-[#5564c6] mt-2 text-lg max-w-2xl mx-auto font-medium">
+        <p className="text-center text-[#5564c6] mt-1 text-base md:text-lg max-w-2xl mx-auto font-medium" style={{fontSize: '1rem'}}>
           Instantly brainstorm creative, diverse, and high-performing subject line ideas for any campaign style or goal.<br />
-          Built for A/B testing and designed to maximize your email's open rates and engagement.
+          <span className="block mt-0.5" style={{fontSize: '0.96rem', opacity: 0.9}}>
+            Built for A/B testing and designed to maximize your email's open rates and engagement.
+          </span>
         </p>
       </header>
 

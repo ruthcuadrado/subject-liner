@@ -49,9 +49,6 @@ export function SubjectLineForm({
     brandGuidelines: "",
   });
   const [showBrand, setShowBrand] = useState(false);
-  const [hasKey, setHasKey] = useState(() =>
-    typeof window !== "undefined" && !!localStorage.getItem("openai_api_key")
-  );
 
   const { generate } = useSubjectLines();
 
@@ -65,7 +62,7 @@ export function SubjectLineForm({
         generateABTest: handleAbTest
       });
     }
-  }, [form, showBrand, hasKey]); 
+  }, [form, showBrand]); 
 
   // Update: Now also accepts textarea's event type
   const handleChange = (
@@ -76,10 +73,10 @@ export function SubjectLineForm({
 
   async function handleSubmit(e?: React.FormEvent) {
     if (e) e.preventDefault();
-    if (!hasKey && !(import.meta.env.VITE_OPENAI_API_KEY)) {
+    if (!(import.meta.env.VITE_OPENAI_API_KEY)) {
       toast({
         title: "API Key required",
-        description: "Please enter your OpenAI API Key above before generating."
+        description: "Please add your OpenAI API Key as VITE_OPENAI_API_KEY via Supabase secrets."
       });
       return;
     }
@@ -107,8 +104,8 @@ export function SubjectLineForm({
   // A/B Test generator
   async function handleAbTest(e?: React.FormEvent) {
     if (e) e.preventDefault();
-    if (!hasKey && !(import.meta.env.VITE_OPENAI_API_KEY)) {
-      toast({ title: "API Key required", description: "Please enter your OpenAI API Key above before generating." });
+    if (!(import.meta.env.VITE_OPENAI_API_KEY)) {
+      toast({ title: "API Key required", description: "Please add your OpenAI API Key as VITE_OPENAI_API_KEY via Supabase secrets." });
       return;
     }
     setLoading(true);
@@ -139,15 +136,15 @@ export function SubjectLineForm({
       onSubmit={handleSubmit}
       aria-label="Subject Line Generator Input"
     >
-      <div className="col-span-2">
+      {/* Removed API Key input */}
+      {/* <div className="col-span-2">
         <OpenAIKeyInput onKeySet={() => setHasKey(true)} />
-        {/* Show a notice if user hasn't entered a key and there's no env key */}
         {!hasKey && !import.meta.env.VITE_OPENAI_API_KEY && (
           <div className="mb-2 p-3 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded text-sm">
             <span className="font-bold">Required:</span> Please provide your OpenAI API key above to generate subject lines.
           </div>
         )}
-      </div>
+      </div> */}
 
       <div>
         <label className="font-semibold flex items-center text-[#3e40a6]">

@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Copy } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
@@ -10,7 +9,7 @@ const toneColors: Record<string, string> = {
   Urgency: "bg-red-100 text-red-800",
   Promo: "bg-green-100 text-green-900",
   Clear: "bg-gray-100 text-gray-800",
-  Irreverent: "bg-violet-200 text-violet-900 font-bold border-violet-400 border-2",
+  "Irreverent / Wild": "bg-violet-300 text-violet-900 font-bold border-violet-500 border-2 animate-pulse",
 };
 
 function copyToClipboard(s: string) {
@@ -49,8 +48,10 @@ export function SubjectLineResults({
   const subjectLines = result?.subjectLines || [];
   const abTest = result?.abTest;
   const goal = result?.goal || "";
-  const irreverent = subjectLines.find((item: any) => item.tone === "Irreverent");
-  const lines = subjectLines.filter((item: any) => item.tone !== "Irreverent");
+  const irreverent = subjectLines.find(
+    (item: any) => (item.tone === "Irreverent / Wild" || item.tone === "Irreverent" || item.tone?.toLowerCase().includes("wild"))
+  );
+  const lines = subjectLines.filter((item: any) => !(item.tone === "Irreverent / Wild" || item.tone === "Irreverent" || item.tone?.toLowerCase().includes("wild")));
 
   // Predict winner logic (works for both: standard & AB)
   let predicted = result?.chanceOfSuccess;
@@ -83,13 +84,7 @@ export function SubjectLineResults({
               )}>
                 {item.tone}
               </span>
-              {predictedIdx === idx && predicted && (
-                <span className="ml-2 bg-blue-200 text-blue-900 rounded-full px-2 py-0.5 text-xs font-semibold inline-flex items-center">
-                  Predicted winner towards "{goal}" goal
-                </span>
-              )}
             </div>
-
             {/* A/B test mode */}
             {abTest ? (
               <div className="flex flex-col gap-2">
@@ -105,7 +100,6 @@ export function SubjectLineResults({
                   </button>
                 </div>
                 <span className="text-sm text-[#7582b8] pl-0.5">{item.previewA}</span>
-
                 <div className="flex items-center gap-2">
                   <span className="text-[#273095] font-bold text-lg flex-1">{item.subjectB}</span>
                   <button
@@ -135,25 +129,31 @@ export function SubjectLineResults({
             {!abTest && (
               <span className="text-sm text-[#7582b8] pl-0.5">{item.preview}</span>
             )}
+            {/* Winner caption inline */}
+            {predictedIdx === idx && predicted && (
+              <span className="ml-2 bg-blue-200 text-blue-900 rounded-full px-2 py-0.5 text-xs font-semibold mt-2 inline-flex items-center">
+                Predicted winner towards "{goal}" goal
+              </span>
+            )}
           </li>
         ))}
         {irreverent && (
           <li
-            className="border-violet-400 border-2 p-4 rounded-xl bg-violet-100 shadow-md flex flex-col gap-1 mt-3"
+            className="border-violet-500 border-2 p-4 rounded-xl bg-violet-100 shadow-md flex flex-col gap-1 mt-3 animate-pulse"
             key="irreverent"
           >
             <div className="flex items-center gap-2 mb-1">
               <span className={cn(
-                "font-bold text-xs rounded px-2 py-0.5 uppercase tracking-wide",
-                toneColors["Irreverent"]
+                "font-black text-xs rounded px-2 py-0.5 uppercase tracking-wider animate-bounce",
+                toneColors["Irreverent / Wild"]
               )}>
-                Irreverent
+                Irreverent / Wild
               </span>
-              <span className="ml-2 bg-pink-300 text-pink-900 rounded-full px-2 py-0.5 text-xs font-semibold">
-                Break-the-inbox idea!
+              <span className="ml-2 bg-pink-400 text-pink-900 rounded-full px-2 py-0.5 text-xs font-bold uppercase shadow-sm">
+                Almost too wild
               </span>
             </div>
-            <span className="font-bold text-lg text-violet-900">{abTest ? irreverent.subjectA : irreverent.subject}</span>
+            <span className="font-extrabold text-lg text-violet-900">{abTest ? irreverent.subjectA : irreverent.subject}</span>
             <span className="text-sm text-violet-800 pl-0.5">{abTest ? irreverent.previewA : irreverent.preview}</span>
           </li>
         )}

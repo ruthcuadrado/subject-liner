@@ -18,12 +18,12 @@ export function useSubjectLines() {
 
     // Compose a SMARTER prompt
     let prompt = `
-You are a high-impact, creative, and brand-sensitive email copywriter. Analyze the following brand and campaign info and use it (including inferred brand keywords, style, and product fit) to maximize relevance and originality. If brand info is missing, use best guesses from what is provided. Never repeat yourself or offer generic filler.
+You are a high-impact, creative, and brand-sensitive email copywriter. Analyze the following brand and campaign info, using it (including inferred brand keywords, style, and product fit) to maximize relevance and originality—but never generic. Suggest brand-unique or industry-aware subject lines (e.g., if "Glow & Co.", use beauty/skincare language). Prioritize the most creative and brand-matching option for each tone.
 
 Write 5 subject line options in these tones: Curiosity, Fun, Urgency, Promo, Clear. For each, include a matching preview text that fits the brand and maximizes open rate.
-- Subject lines: punchy (max 10 words), emotionally compelling, and truly fit the brand/campaign. Explain nothing in output—just JSON.
+- Subject lines: punchy (max 10 words), emotionally compelling, and *actually fit the brand/campaign*. Explain nothing in output—just JSON.
 - Preview text: complements the subject, max 15 words.
-- For each, draw from brand, campaign goal, and industry for the most targeted ideas.
+- Draw from brand, campaign goal, and industry for targeted ideas. Avoid generic, repetitive, or copy-paste filler.
 
 ${
   input.abTest
@@ -31,7 +31,7 @@ ${
     : ""
 }
 
->> INCLUDE 1 'Irreverent' tone subject line: Make this a truly wild, creative, internet-breaking (non-offensive) subject line that most brands would never use, but could go viral or get huge attention. This is meant to jolt the reader, without being mean, negative, or breaking rules.
+>> INCLUDE 1 'Irreverent / Wild' tone subject line: Make this the craziest, most wild, internet-breaking, attention-grabbing subject line you could imagine (but not offensive or negative). Must be almost too wild to use—a subject line so strange, funny, unexpected, or ridiculous that it would instantly grab attention and go viral. Preview text should match the energy.
 
 Campaign details:
 ${input.brandName ? `Brand: ${input.brandName}\n` : ""}
@@ -58,7 +58,7 @@ Respond ONLY with minified JSON in this format:
     },
     ... (Fun, Urgency, Promo, Clear),
     {
-      "tone": "Irreverent",
+      "tone": "Irreverent / Wild",
       "subjectA": "...",
       "previewA": "..."
     }`
@@ -69,7 +69,7 @@ Respond ONLY with minified JSON in this format:
     },
     ... (Fun, Urgency, Promo, Clear),
     {
-      "tone": "Irreverent",
+      "tone": "Irreverent / Wild",
       "subject": "...",
       "preview": "..."
     }`
@@ -82,18 +82,13 @@ Respond ONLY with minified JSON in this format:
 }
 `;
 
-    // Use OpenAI API key from localStorage first, then env
+    // Use OpenAI API key from env (via Supabase secrets)
     let apiKey = "";
-    if (typeof window !== "undefined") {
-      apiKey = localStorage.getItem("openai_api_key") || "";
-    }
-    if (!apiKey) {
-      apiKey = import.meta.env.VITE_OPENAI_API_KEY;
-    }
+    apiKey = import.meta.env.VITE_OPENAI_API_KEY;
 
     if (!apiKey) {
       setLoading(false);
-      throw new Error("OpenAI API Key is not set. Please set it above, or set VITE_OPENAI_API_KEY in your environment.");
+      throw new Error("OpenAI API Key is not set. Please set VITE_OPENAI_API_KEY as a Supabase Secret on your project.");
     }
 
     try {
