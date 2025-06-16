@@ -4,7 +4,7 @@
 
 > Instantly generate 5 high-performing email subject lines in different tones — complete with matching preview text.
 
-![Demo](demo/demo.gif)
+
 
 ---
 
@@ -16,7 +16,8 @@
 
 ## 🚀 Why it matters
 
-Good subject lines = better open rates.  
+**Good subject lines = better open rates.**
+
 This app helps you:
 - Write faster and smarter (no more blank screens)
 - Test different tones instantly (FOMO, playful, straightforward, etc.)
@@ -26,10 +27,12 @@ This app helps you:
 
 ## 💡 What makes it unique
 
-- 🧠 AI-generated subject lines tailored by campaign inputs  
-- 🎯 Five tones: Clickbait, Playful, FOMO, Promo, Straightforward  
+- 🧠 AI-generated subject lines tailored by campaign inputs and email marketing best practices  
+- 🎯 Five tones: Clickbait, Playful, FOMO, Promo, Straightforward
+- 🔥 Includes a WILD mode for out-of-the-box brainstorming
 - ✍️ Matching preview text (snippet) for each  
 - 🖱 One-click copy + ready for testing or launch  
+- ✨ A/B test mode suggests subject line pairs to test 
 
 ---
 
@@ -52,7 +55,7 @@ Built with:
 3. View 5 subject lines + preview text in different tones
 4. Click "Copy" to use instantly in your email tool
 
-> 📸 *Screenshots below* (replace placeholders with real screenshots from your UI)
+> 📸 *Screenshots below*
 
 | Input Area                                | Generated Subject Lines                          |
 |-------------------------------------------|--------------------------------------------------|
