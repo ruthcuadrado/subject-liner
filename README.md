@@ -1,73 +1,75 @@
-# Welcome to your Lovable project
+# ✉️ Subject Line Sorcerer
 
-## Project info
+**Live App**: [https://subject-liner.lovable.app](https://subject-liner.lovable.app)
 
-**URL**: https://lovable.dev/projects/51311353-2f6d-4ce0-8e15-cb25d778c6e2
+> Instantly generate 5 high-performing email subject lines in different tones — complete with matching preview text.
 
-## How can I edit this code?
+![Demo](demo/demo.gif)
 
-There are several ways of editing your application.
+---
 
-**Use Lovable**
+## ✨ What is this?
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/51311353-2f6d-4ce0-8e15-cb25d778c6e2) and start prompting.
+**Subject Line Sorcerer** is a fast, AI-powered tool for generating email subject lines that people actually open. Just plug in your campaign info, and get tone-varied subject lines with matching preview text, ready to copy or test.
 
-Changes made via Lovable will be committed automatically to this repo.
+---
 
-**Use your preferred IDE**
+## 🚀 Why it matters
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+Good subject lines = better open rates.  
+This app helps you:
+- Write faster and smarter (no more blank screens)
+- Test different tones instantly (FOMO, playful, straightforward, etc.)
+- Support junior marketers, founders, or anyone without a copywriter
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+---
 
-Follow these steps:
+## 💡 What makes it unique
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+- 🧠 AI-generated subject lines tailored by campaign inputs  
+- 🎯 Five tones: Clickbait, Playful, FOMO, Promo, Straightforward  
+- ✍️ Matching preview text (snippet) for each  
+- 🖱 One-click copy + ready for testing or launch  
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+---
 
-# Step 3: Install the necessary dependencies.
-npm i
+## 🔧 Tech Stack
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
+Built with:
 - Vite
 - TypeScript
 - React
-- shadcn-ui
 - Tailwind CSS
+- shadcn-ui
+- [Lovable](https://lovable.dev) AI App Builder
 
-## How can I deploy this project?
+---
 
-Simply open [Lovable](https://lovable.dev/projects/51311353-2f6d-4ce0-8e15-cb25d778c6e2) and click on Share -> Publish.
+## 🖼 How to Use
 
-## Can I connect a custom domain to my Lovable project?
+1. Fill out the inputs on the left (campaign type, audience, product, etc.)
+2. Click "Generate"
+3. View 5 subject lines + preview text in different tones
+4. Click "Copy" to use instantly in your email tool
 
-Yes, you can!
+> 📸 *Screenshots below* (replace placeholders with real screenshots from your UI)
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+| Input Area                                | Generated Subject Lines                          |
+|-------------------------------------------|--------------------------------------------------|
+| ![Input](demo/input.png)                  | ![Output](demo/output.png)                       |
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+---
+
+## 🛠 Editing & Contributing
+
+### 1. [Use Lovable](https://lovable.dev/projects/51311353-2f6d-4ce0-8e15-cb25d778c6e2)  
+Edit directly in Lovable; changes are auto-committed to this repo.
+
+### 2. Work locally
+
+```sh
+git clone <YOUR_GIT_URL>
+cd <YOUR_PROJECT_NAME>
+npm install
+npm run dev
+
