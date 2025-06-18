@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { HelpCircle, Sparkles } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
@@ -117,13 +118,13 @@ export function SubjectLineForm({
 
   return (
     <form
-      className="w-full rounded-2xl border border-[#e2e3fa] bg-white shadow-xl p-7 grid grid-cols-1 md:grid-cols-2 gap-x-7 gap-y-5 animate-fade-in"
+      className="w-full rounded-2xl border border-[#e2e3fa] bg-white shadow-xl p-4 sm:p-7 grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-7 gap-y-4 sm:gap-y-5 animate-fade-in"
       style={{background: "linear-gradient(104deg, #f8faff 74%, #e7eafd 100%)"}}
       onSubmit={handleSubmit}
       aria-label="Subject Line Generator Input"
     >
-      {/* Form fields remain the same */}
-      <div>
+      {/* Campaign Type */}
+      <div className="col-span-1">
         <label className="font-semibold flex items-center text-[#3e40a6]">
           Campaign Type
           <Tooltip text="What type of campaign? (Sale, Product Launch, etc.)" />
@@ -135,13 +136,14 @@ export function SubjectLineForm({
           onChange={handleChange}
         >
           <option value="">Select…</option>
-          {["Sale", "Product Launch", "Newsletter", "Event", "Other"].map((opt) => (
+          {campaignTypes.map((opt) => (
             <option value={opt} key={opt}>{opt}</option>
           ))}
         </select>
       </div>
 
-      <div>
+      {/* Brand Name */}
+      <div className="col-span-1">
         <label className="font-semibold flex items-center text-[#3e40a6]">
           Brand Name
           <Tooltip text="The more you share about your brand, the more tailored and unique your subject lines will be!" />
@@ -155,7 +157,8 @@ export function SubjectLineForm({
         />
       </div>
 
-      <div>
+      {/* Industry */}
+      <div className="col-span-1">
         <label className="font-semibold flex items-center text-[#3e40a6]">
           Industry
           <Tooltip text="e.g. Skincare, SaaS, Retail, Finance, etc." />
@@ -169,7 +172,8 @@ export function SubjectLineForm({
         />
       </div>
 
-      <div>
+      {/* Target Audience */}
+      <div className="col-span-1">
         <label className="font-semibold flex items-center text-[#3e40a6]">
           Target Audience
           <Tooltip text="e.g. 'Tech founders', 'Dog owners'" />
@@ -183,7 +187,8 @@ export function SubjectLineForm({
         />
       </div>
 
-      <div>
+      {/* Offer or Sale */}
+      <div className="col-span-1">
         <label className="font-semibold flex items-center text-[#3e40a6]">
           Offer or Sale
           <Tooltip text="e.g. '20% off', 'Bundle savings', etc." />
@@ -197,7 +202,8 @@ export function SubjectLineForm({
         />
       </div>
 
-      <div>
+      {/* Product */}
+      <div className="col-span-1">
         <label className="font-semibold flex items-center text-[#3e40a6]">
           Product Being Promoted
           <Tooltip text="e.g. 'Vitamin C Serum', 'CRM Platform'" />
@@ -211,7 +217,8 @@ export function SubjectLineForm({
         />
       </div>
 
-      <div>
+      {/* Goal - spans full width on mobile, single column on desktop */}
+      <div className="col-span-1 sm:col-span-2">
         <label className="font-semibold flex items-center text-[#3e40a6]">
           Goal
           <Tooltip text="What's your main goal? (e.g. Opens, Clicks)" />
@@ -223,13 +230,14 @@ export function SubjectLineForm({
           onChange={handleChange}
         >
           <option value="">Select…</option>
-          {["Opens", "Clicks", "Awareness", "Engagement", "Conversions"].map((opt) => (
+          {goals.map((opt) => (
             <option value={opt} key={opt}>{opt}</option>
           ))}
         </select>
       </div>
 
-      <div className="col-span-2 flex items-center gap-3 mt-3">
+      {/* Brand Guidelines Toggle */}
+      <div className="col-span-1 sm:col-span-2 flex items-center gap-3 mt-3">
         <Switch
           id="showBrand"
           checked={showBrand}
@@ -240,19 +248,23 @@ export function SubjectLineForm({
           <Tooltip text="Tell us about your brand voice, e.g. 'Conversational, witty…'. More detail = better results!" />
         </label>
       </div>
+
+      {/* Brand Guidelines Textarea */}
       {showBrand && (
-        <textarea
-          className="rounded border-[#babaff] mt-2 px-3 py-2 w-full focus:ring-2 focus:ring-[#af9fff] min-h-[70px] bg-[#f7f8fc] col-span-2"
-          name="brandGuidelines"
-          placeholder='Describe your brand voice, e.g. "Conversational, luxury, witty…"'
-          value={form.brandGuidelines}
-          onChange={handleChange}
-          maxLength={200}
-        />
+        <div className="col-span-1 sm:col-span-2">
+          <textarea
+            className="rounded border-[#babaff] mt-2 px-3 py-2 w-full focus:ring-2 focus:ring-[#af9fff] min-h-[70px] bg-[#f7f8fc]"
+            name="brandGuidelines"
+            placeholder='Describe your brand voice, e.g. "Conversational, luxury, witty…"'
+            value={form.brandGuidelines}
+            onChange={handleChange}
+            maxLength={200}
+          />
+        </div>
       )}
 
       {/* CTA buttons at bottom */}
-      <div className="col-span-2 flex justify-center gap-4 mt-7">
+      <div className="col-span-1 sm:col-span-2 flex justify-center gap-4 mt-7">
         <Button
           className={cn("font-semibold text-base px-8 py-3 rounded-lg bg-[#4d5ac7] hover:bg-[#2d399d]", loading && "cursor-not-allowed opacity-80")}
           type="submit"

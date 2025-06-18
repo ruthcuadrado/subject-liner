@@ -67,13 +67,13 @@ export function SubjectLineResults({
   }
 
   return (
-    <div id="sls-results" className="animate-fade-in w-full max-w-2xl mx-auto mt-4">
+    <div id="sls-results" className="animate-fade-in w-full max-w-2xl mx-auto mt-4 px-4 sm:px-0">
       <h2 className="text-xl font-semibold mb-3 mt-2 text-[#1e3a8a]">Subject Line Ideas</h2>
       
       {/* Winner prediction banner - only show if we have a prediction */}
-      {predicted && predictedIdx !== null && predictedIdx >= 0 && (
+      {predicted && predicted.subject && goal && (
         <div className="mb-4 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-500 rounded-lg">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
             <span className="text-sm font-semibold text-blue-900">AI Prediction:</span>
             <span className="text-sm text-blue-800">
@@ -95,7 +95,7 @@ export function SubjectLineResults({
               predictedIdx === idx && "border-2 border-blue-400 bg-gradient-to-br from-blue-50 to-indigo-50 shadow-lg"
             )}
           >
-            <div className="flex items-center gap-2 mb-1">
+            <div className="flex items-center gap-2 mb-1 flex-wrap">
               <span className={cn(
                 "font-medium text-xs rounded px-2 py-0.5 capitalize",
                 toneColors[item.tone] || "bg-gray-100 text-gray-800"
@@ -112,37 +112,37 @@ export function SubjectLineResults({
             {/* A/B test mode */}
             {abTest ? (
               <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-[#1e3a8a] font-bold text-lg flex-1">{item.subjectA}</span>
+                <div className="flex items-start gap-2">
+                  <span className="text-[#1e3a8a] font-bold text-lg flex-1 break-words">{item.subjectA}</span>
                   <button
                     onClick={() => copyToClipboard(item.subjectA)}
-                    className="hover:bg-blue-100 rounded p-1 transition"
+                    className="hover:bg-blue-100 rounded p-1 transition flex-shrink-0"
                     aria-label="Copy subject line"
                     type="button"
                   >
                     <Copy size={18} className="text-[#3b82f6]" />
                   </button>
                 </div>
-                <span className="text-sm text-[#64748b] pl-0.5">{item.previewA}</span>
-                <div className="flex items-center gap-2">
-                  <span className="text-[#1e3a8a] font-bold text-lg flex-1">{item.subjectB}</span>
+                <span className="text-sm text-[#64748b] pl-0.5 break-words">{item.previewA}</span>
+                <div className="flex items-start gap-2">
+                  <span className="text-[#1e3a8a] font-bold text-lg flex-1 break-words">{item.subjectB}</span>
                   <button
                     onClick={() => copyToClipboard(item.subjectB)}
-                    className="hover:bg-blue-100 rounded p-1 transition"
+                    className="hover:bg-blue-100 rounded p-1 transition flex-shrink-0"
                     aria-label="Copy subject line"
                     type="button"
                   >
                     <Copy size={18} className="text-[#3b82f6]" />
                   </button>
                 </div>
-                <span className="text-sm text-[#64748b] pl-0.5">{item.previewB}</span>
+                <span className="text-sm text-[#64748b] pl-0.5 break-words">{item.previewB}</span>
               </div>
             ) : (
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-lg flex-1 text-[#1e3a8a]">{item.subject}</span>
+              <div className="flex items-start gap-2">
+                <span className="font-bold text-lg flex-1 text-[#1e3a8a] break-words">{item.subject}</span>
                 <button
                   onClick={() => copyToClipboard(item.subject)}
-                  className="hover:bg-blue-100 rounded p-1 transition"
+                  className="hover:bg-blue-100 rounded p-1 transition flex-shrink-0"
                   aria-label="Copy subject line"
                   type="button"
                 >
@@ -151,7 +151,7 @@ export function SubjectLineResults({
               </div>
             )}
             {!abTest && (
-              <span className="text-sm text-[#64748b] pl-0.5">{item.preview}</span>
+              <span className="text-sm text-[#64748b] pl-0.5 break-words">{item.preview}</span>
             )}
           </li>
         ))}
@@ -160,7 +160,7 @@ export function SubjectLineResults({
             className="border-violet-500 border-2 p-4 rounded-xl bg-gradient-to-br from-violet-100 to-purple-50 shadow-md flex flex-col gap-1 mt-3 animate-pulse"
             key="irreverent"
           >
-            <div className="flex items-center gap-2 mb-1">
+            <div className="flex items-center gap-2 mb-1 flex-wrap">
               <span className={cn(
                 "font-black text-xs rounded px-2 py-0.5 uppercase tracking-wider animate-bounce",
                 toneColors["Irreverent / Wild"]
@@ -171,12 +171,12 @@ export function SubjectLineResults({
                 Almost too wild
               </span>
             </div>
-            <span className="font-extrabold text-lg text-violet-900">{abTest ? irreverent.subjectA : irreverent.subject}</span>
-            <span className="text-sm text-violet-800 pl-0.5">{abTest ? irreverent.previewA : irreverent.preview}</span>
+            <span className="font-extrabold text-lg text-violet-900 break-words">{abTest ? irreverent.subjectA : irreverent.subject}</span>
+            <span className="text-sm text-violet-800 pl-0.5 break-words">{abTest ? irreverent.previewA : irreverent.preview}</span>
           </li>
         )}
       </ul>
-      <div className="flex justify-center gap-6 mt-8">
+      <div className="flex justify-center gap-4 sm:gap-6 mt-8 flex-wrap">
         <button
           className="px-6 py-2 bg-gradient-to-r from-[#6366f1] to-[#8b5cf6] text-white rounded-full font-medium shadow hover:from-[#4f46e5] hover:to-[#7c3aed] transition-all"
           onClick={onGenerateAgain}
