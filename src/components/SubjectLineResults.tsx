@@ -1,8 +1,8 @@
-
 import React from "react";
-import { Copy } from "lucide-react";
+import { Copy, HelpCircle } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const toneColors: Record<string, string> = {
   Curiosity: "bg-blue-100 text-blue-900",
@@ -72,22 +72,14 @@ export function SubjectLineResults({
       
       {/* Winner prediction banner - only show if we have a prediction */}
       {predicted && predicted.subject && goal && (
-        <div className="mb-4">
-          <div className="p-3 bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-500 rounded-lg">
-            <div className="flex items-center gap-2 flex-wrap">
-              <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-              <span className="text-sm font-semibold text-blue-900">AI Prediction:</span>
-              <span className="text-sm text-blue-800">
-                "{predicted.subject}" is most likely to achieve your "{goal}" goal
-              </span>
-            </div>
+        <div className="mb-4 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-500 rounded-lg">
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+            <span className="text-sm font-semibold text-blue-900">AI Prediction:</span>
+            <span className="text-sm text-blue-800">
+              "{predicted.subject}" is most likely to achieve your "{goal}" goal
+            </span>
           </div>
-          {predicted.reason && (
-            <div className="mt-2 p-3 bg-blue-50/50 border border-blue-200 rounded-lg">
-              <p className="text-sm text-blue-700 font-medium">Why this subject line?</p>
-              <p className="text-sm text-blue-600 mt-1">{predicted.reason}</p>
-            </div>
-          )}
         </div>
       )}
 
@@ -107,11 +99,27 @@ export function SubjectLineResults({
               )}>
                 {item.tone}
               </span>
-              {/* Winner badge inline with tone */}
+              {/* Winner badge with tooltip */}
               {predictedIdx === idx && predicted && (
-                <span className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-full px-2 py-0.5 text-xs font-semibold">
-                  ⭐ Predicted Winner
-                </span>
+                <div className="flex items-center gap-1">
+                  <span className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-full px-2 py-0.5 text-xs font-semibold">
+                    ⭐ Predicted Winner
+                  </span>
+                  {predicted.reason && (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button className="text-blue-600 hover:text-blue-800 transition-colors">
+                            <HelpCircle size={14} />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p className="text-sm">{predicted.reason}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  )}
+                </div>
               )}
             </div>
             {/* A/B test mode */}
