@@ -72,16 +72,21 @@ export function SubjectLineResults({
       
       {/* Winner prediction banner - only show if we have a prediction */}
       {predicted && predicted.subject && goal && (
-        <div className="mb-4 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-500 rounded-lg">
-          <div className="flex items-center gap-2 flex-wrap">
-            <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-            <span className="text-sm font-semibold text-blue-900">AI Prediction:</span>
-            <span className="text-sm text-blue-800">
-              "{predicted.subject}" is most likely to achieve your "{goal}" goal
-            </span>
+        <div className="mb-4">
+          <div className="p-3 bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-500 rounded-lg">
+            <div className="flex items-center gap-2 flex-wrap">
+              <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+              <span className="text-sm font-semibold text-blue-900">AI Prediction:</span>
+              <span className="text-sm text-blue-800">
+                "{predicted.subject}" is most likely to achieve your "{goal}" goal
+              </span>
+            </div>
           </div>
           {predicted.reason && (
-            <p className="text-xs text-blue-700 mt-1 ml-4">{predicted.reason}</p>
+            <div className="mt-2 p-3 bg-blue-50/50 border border-blue-200 rounded-lg">
+              <p className="text-sm text-blue-700 font-medium">Why this subject line?</p>
+              <p className="text-sm text-blue-600 mt-1">{predicted.reason}</p>
+            </div>
           )}
         </div>
       )}
