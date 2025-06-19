@@ -28,6 +28,7 @@ serve(async (req) => {
     }
 
     const input = await req.json();
+    console.log('Input received:', JSON.stringify(input, null, 2));
     
     // Compose the prompt (same logic as before)
     let prompt = `
@@ -56,8 +57,9 @@ ${input.product ? `Product: ${input.product}\n` : ""}
 ${input.goal ? `Goal: ${input.goal}\n` : ""}
 ${input.brandGuidelines ? `Brand Guidelines: ${input.brandGuidelines}\n` : ""}
 
-After the list, analyze as a friendly strategist: Which subject line is *most likely* to achieve the stated goal "${input.goal || ''}"? Give the field "subject" (matching your winning subject line exactly!) and a sentence explaining *why* in "reason".
-Respond ONLY with minified JSON in this format:
+CRITICAL REQUIREMENT: After the list, you MUST analyze as a friendly strategist: Which subject line is *most likely* to achieve the stated goal "${input.goal || ''}"? You MUST provide the exact subject line text in the "subject" field and a brief explanation in the "reason" field. This analysis is mandatory and must be included in every response.
+
+Respond ONLY with minified JSON in this exact format:
 {
   "subjectLines": [
     ${
@@ -89,8 +91,8 @@ Respond ONLY with minified JSON in this format:
     }
   ],
   "chanceOfSuccess": {
-    "subject": "The subject line text predicted to do best",
-    "reason": "A short friendly explanation"
+    "subject": "The exact subject line text predicted to do best",
+    "reason": "A short friendly explanation of why this subject line will achieve the ${input.goal || 'specified'} goal"
   }
 }
 `;
@@ -108,7 +110,7 @@ Respond ONLY with minified JSON in this format:
         messages: [
           {
             role: "system",
-            content: "You are a helpful assistant that generates great email subject lines and matching preview text for marketing campaigns."
+            content: "You are a helpful assistant that generates great email subject lines and matching preview text for marketing campaigns. You ALWAYS provide winner predictions in the chanceOfSuccess field."
           },
           {
             role: "user",
@@ -128,25 +130,70 @@ Respond ONLY with minified JSON in this format:
 
     const data = await response.json();
     console.log('OpenAI response received successfully');
+    console.log('OpenAI raw response:', JSON.stringify(data, null, 2));
 
     // Parse the assistant's response
     let json;
     try {
-      const match = data.choices?.[0]?.message?.content?.match(/```json([\s\S]*?)```/);
+      const content = data.choices?.[0]?.message?.content;
+      console.log('OpenAI content:', content);
+      
+      const match = content?.match(/```json([\s\S]*?)```/);
       if (match && match[1]) {
         json = JSON.parse(match[1]);
       } else {
-        const arrMatch = data.choices?.[0]?.message?.content?.match(/\[.*\]/s);
-        if (arrMatch) {
-          json = { subjectLines: JSON.parse(arrMatch[0]), chanceOfSuccess: null };
-        } else {
-          throw new Error("Could not find JSON subject lines in the response!");
-        }
+        // Try to parse the entire content as JSON
+        json = JSON.parse(content);
       }
     } catch (e: any) {
       console.error('Failed to parse OpenAI response:', e);
       throw new Error("Failed to parse subject lines from AI output.");
     }
+
+    console.log('Parsed JSON before fallback:', JSON.stringify(json, null, 2));
+
+    // Fallback logic if chanceOfSuccess is missing or null
+    if (!json.chanceOfSuccess || !json.chanceOfSuccess.subject) {
+      console.log('Applying fallback logic for goal:', input.goal);
+      
+      const subjectLines = json.subjectLines || [];
+      let fallbackTone = 'Curiosity'; // default
+      
+      // Apply your specific fallback logic
+      switch (input.goal?.toLowerCase()) {
+        case 'opens':
+        case 'engagement':
+          fallbackTone = 'Curiosity';
+          break;
+        case 'clicks':
+          fallbackTone = 'Urgency';
+          break;
+        case 'awareness':
+          fallbackTone = 'Clear';
+          break;
+        case 'conversions':
+          fallbackTone = 'Promo';
+          break;
+        default:
+          fallbackTone = 'Curiosity';
+      }
+      
+      // Find the subject line with the fallback tone
+      const fallbackLine = subjectLines.find((line: any) => 
+        line.tone?.toLowerCase() === fallbackTone.toLowerCase()
+      );
+      
+      if (fallbackLine) {
+        const subject = input.abTest ? fallbackLine.subjectA : fallbackLine.subject;
+        json.chanceOfSuccess = {
+          subject: subject,
+          reason: `${fallbackTone} tone typically performs best for ${input.goal || 'this type of'} campaigns`
+        };
+        console.log('Applied fallback prediction:', json.chanceOfSuccess);
+      }
+    }
+
+    console.log('Final response:', JSON.stringify(json, null, 2));
 
     return new Response(JSON.stringify(json), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
